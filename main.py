@@ -1,5 +1,4 @@
 import customtkinter as ctk
-
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import (Motor, TouchSensor, ColorSensor,
                                  InfraredSensor, UltrasonicSensor, GyroSensor)
@@ -92,6 +91,11 @@ class WASDApp:
         
         self.key_d = ctk.CTkButton(control_frame, text="D", **btn_style)
         self.key_d.grid(row=1, column=2, pady=5)
+
+        self.key_e = ctk.CTkButton(control_frame, text="E", **btn_style)
+        self.key_e.grid(row=0, column=2, pady=5)
+        self.key_q = ctk.CTkButton(control_frame, text="Q", **btn_style)
+        self.key_q.grid(row=0, column=0, pady=5)
         
         self.key_space = ctk.CTkButton(control_frame,text="Пробел",width=180,height=60,corner_radius=12,font=('Arial', 14, 'bold'),border_width=2,border_color='#444',fg_color='#333',hover_color='#222')
         self.key_space.grid(row=2, column=0, columnspan=3, pady=10)
@@ -137,6 +141,15 @@ class WASDApp:
             self.key_d.configure(fg_color='#00aa77', border_color='#00ffaa')
             # Ваш код для D здесь
             print("Код для D")
+
+        elif key == 'e':
+            self.key_e.configure(fg_color='#434B4D', border_color='#434B4D')
+            # Ваш код для E здесь
+            print("Код для e")
+        elif key == 'q':
+            self.key_q.configure(fg_color='#434B4D', border_color='#434B4D')
+            # Ваш код для Q здесь
+            print("Код для q")
         
         elif key == 'space':
             self.space_pressed = not self.space_pressed
@@ -159,6 +172,10 @@ class WASDApp:
         
         elif key == 'd':
             self.key_d.configure(fg_color='#333', border_color='#444')
+        elif key == 'e':
+            self.key_e.configure(fg_color='#333', border_color='#444')
+        elif key == 'q':
+            self.key_q.configure(fg_color='#333', border_color='#444')
     def run(self):
         self.root.mainloop()
 
