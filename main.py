@@ -1,4 +1,47 @@
 import customtkinter as ctk
+from pybricks.hubs import EV3Brick
+from pybricks.ev3devices import (Motor, TouchSensor, ColorSensor,
+                                 InfraredSensor, UltrasonicSensor, GyroSensor)
+from pybricks.parameters import Port, Stop, Direction, Button, Color
+from pybricks.tools import wait, StopWatch, DataLog
+from pybricks.robotics import DriveBase
+from pybricks.media.ev3dev import SoundFile, ImageFile
+
+ev3 = EV3Brick()
+ev3.speaker.beep()
+
+# левый и правый моторы
+left_motor = Motor(Port.B)
+right_motor = Motor(Port.C)
+
+color_sensor = ColorSensor(Port.S3) # датчик цвета
+
+# Цвета
+BLACK = 9
+WHITE = 85
+BASE_SPEED = 200 # скорость
+GAIN = 1.8 # коэффицент
+MAX_CORRECTION = 300 # ограничение коррекции
+
+def move_on_line(space_click):
+    while space_click:
+        theshold = (BLACK + WHITE) / 2 # линия серого
+        reflection_color = color_sensor.reflection()
+        deviation = reflection_color - theshold # отклонение
+        correction = deviation * GAIN # коррекция
+
+        # условия для изменения маршрута
+        if correction > MAX_CORRECTION:
+            correction = MAX_CORRECTION
+        elif correction < -MAX_CORRECTION:
+            correction = -MAX_CORRECTION
+        
+        # запуск моторов
+        left_motor.run(BASE_SPEED + correction)
+        right_motor.run(BASE_SPEED - correction)
+
+        wait(10) # задержка
+
 class WASDApp:
     def __init__(self):
         self.root = ctk.CTk()
@@ -48,6 +91,11 @@ class WASDApp:
         
         self.key_d = ctk.CTkButton(control_frame, text="D", **btn_style)
         self.key_d.grid(row=1, column=2, pady=5)
+
+        self.key_e = ctk.CTkButton(control_frame, text="E", **btn_style)
+        self.key_e.grid(row=0, column=2, pady=5)
+        self.key_q = ctk.CTkButton(control_frame, text="Q", **btn_style)
+        self.key_q.grid(row=0, column=0, pady=5)
         
         self.key_space = ctk.CTkButton(control_frame,text="Пробел",width=180,height=60,corner_radius=12,font=('Arial', 14, 'bold'),border_width=2,border_color='#444',fg_color='#333',hover_color='#222')
         self.key_space.grid(row=2, column=0, columnspan=3, pady=10)
@@ -93,13 +141,23 @@ class WASDApp:
             self.key_d.configure(fg_color='#00aa77', border_color='#00ffaa')
             # Ваш код для D здесь
             print("Код для D")
+
+        elif key == 'e':
+            self.key_e.configure(fg_color='#434B4D', border_color='#434B4D')
+            # Ваш код для E здесь
+            print("Код для e")
+        elif key == 'q':
+            self.key_q.configure(fg_color='#434B4D', border_color='#434B4D')
+            # Ваш код для Q здесь
+            print("Код для q")
         
         elif key == 'space':
             self.space_pressed = not self.space_pressed
             color = '#00aa77' if self.space_pressed else '#333'
             border = '#00ffaa' if self.space_pressed else '#444'
             self.key_space.configure(fg_color=color, border_color=border)
-            print(f"ТУТ ПИШИ СВОЙ КОД" if self.space_pressed else 'Проезд по черной линии остановлен')
+            if self.space_pressed: 
+                move_on_line(self.space_pressed)
     
     def key_released(self, event):
         key = event.keysym.lower()
@@ -114,6 +172,10 @@ class WASDApp:
         
         elif key == 'd':
             self.key_d.configure(fg_color='#333', border_color='#444')
+        elif key == 'e':
+            self.key_e.configure(fg_color='#333', border_color='#444')
+        elif key == 'q':
+            self.key_q.configure(fg_color='#333', border_color='#444')
     def run(self):
         self.root.mainloop()
 
