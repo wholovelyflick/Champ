@@ -1,4 +1,48 @@
 import customtkinter as ctk
+
+from pybricks.hubs import EV3Brick
+from pybricks.ev3devices import (Motor, TouchSensor, ColorSensor,
+                                 InfraredSensor, UltrasonicSensor, GyroSensor)
+from pybricks.parameters import Port, Stop, Direction, Button, Color
+from pybricks.tools import wait, StopWatch, DataLog
+from pybricks.robotics import DriveBase
+from pybricks.media.ev3dev import SoundFile, ImageFile
+
+ev3 = EV3Brick()
+ev3.speaker.beep()
+
+# левый и правый моторы
+left_motor = Motor(Port.B)
+right_motor = Motor(Port.C)
+
+color_sensor = ColorSensor(Port.S3) # датчик цвета
+
+# Цвета
+BLACK = 9
+WHITE = 85
+BASE_SPEED = 200 # скорость
+GAIN = 1.8 # коэффицент
+MAX_CORRECTION = 300 # ограничение коррекции
+
+def move_on_line(space_click):
+    while space_click:
+        theshold = (BLACK + WHITE) / 2 # линия серого
+        reflection_color = color_sensor.reflection()
+        deviation = reflection_color - theshold # отклонение
+        correction = deviation * GAIN # коррекция
+
+        # условия для изменения маршрута
+        if correction > MAX_CORRECTION:
+            correction = MAX_CORRECTION
+        elif correction < -MAX_CORRECTION:
+            correction = -MAX_CORRECTION
+        
+        # запуск моторов
+        left_motor.run(BASE_SPEED + correction)
+        right_motor.run(BASE_SPEED - correction)
+
+        wait(10) # задержка
+
 class WASDApp:
     def __init__(self):
         self.root = ctk.CTk()
@@ -99,7 +143,8 @@ class WASDApp:
             color = '#00aa77' if self.space_pressed else '#333'
             border = '#00ffaa' if self.space_pressed else '#444'
             self.key_space.configure(fg_color=color, border_color=border)
-            print(f"ТУТ ПИШИ СВОЙ КОД" if self.space_pressed else 'Проезд по черной линии остановлен')
+            if self.space_pressed: 
+                move_on_line(self.space_pressed)
     
     def key_released(self, event):
         key = event.keysym.lower()
